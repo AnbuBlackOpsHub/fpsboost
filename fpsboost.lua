@@ -315,9 +315,17 @@ local function startOptimization()
     return true
 end
 
-queue_on_teleport([=[
+local function setupAutoQueue()
+    queue_on_teleport([=[
 task.wait(1)
 loadstring(game:HttpGet("https://raw.githubusercontent.com/AnbuBlackOpsHub/fpsboost/refs/heads/main/fpsboost.lua"))()
 ]=])
+end
 
-return startOptimization() 
+setupAutoQueue()
+
+local result = startOptimization()
+
+setupAutoQueue()
+
+return result 
