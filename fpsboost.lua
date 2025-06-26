@@ -212,7 +212,19 @@ local function optimizeAudio()
 end
 
 local function removeUnnecessaryGUI()
-    local playerGui = LocalPlayer:WaitForChild("PlayerGui")
+    local success, playerGui = pcall(function()
+        if not LocalPlayer then
+            LocalPlayer = Players.LocalPlayer or Players:WaitForChild("LocalPlayer", 10)
+        end
+        if not LocalPlayer then return nil end
+        return LocalPlayer:WaitForChild("PlayerGui", 10)
+    end)
+    
+    if not success or not playerGui then
+        warn("Could not access PlayerGui, skipping GUI optimization")
+        return
+    end
+    
     for _, gui in pairs(playerGui:GetChildren()) do
         if gui.Name ~= "Chat" and gui.Name ~= "PlayerList" and gui.Name ~= "Backpack" and 
            gui.Name ~= "Health" and gui.Name ~= "TopbarPlus" then
@@ -241,15 +253,15 @@ local function monitorPerformance()
 end
 
 local function startOptimization()
-    optimizeGraphics()
-    optimizeLighting()
-    removeGardenElements()
-    reduceGroundElements()
-    removeParticles()
-    optimizeWorkspace()
-    disableAnimations()
-    optimizeAudio()
-    removeUnnecessaryGUI()
+    pcall(optimizeGraphics)
+    pcall(optimizeLighting)
+    pcall(removeGardenElements)
+    pcall(reduceGroundElements)
+    pcall(removeParticles)
+    pcall(optimizeWorkspace)
+    pcall(disableAnimations)
+    pcall(optimizeAudio)
+    pcall(removeUnnecessaryGUI)
     
     local performanceMonitor = monitorPerformance()
     
@@ -317,8 +329,12 @@ end
 
 local function setupAutoQueue()
     queue_on_teleport([=[
-task.wait(1)
-loadstring(game:HttpGet("https://raw.githubusercontent.com/AnbuBlackOpsHub/fpsboost/refs/heads/main/fpsboost.lua"))()
+task.wait(3)
+repeat task.wait(0.5) until game:IsLoaded() and game.Players.LocalPlayer and game.Players.LocalPlayer.Character
+task.wait(2)
+pcall(function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/AnbuBlackOpsHub/fpsboost/refs/heads/main/fpsboost.lua"))()
+end)
 ]=])
 end
 
